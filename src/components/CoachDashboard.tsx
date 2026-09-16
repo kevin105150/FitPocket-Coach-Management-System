@@ -194,7 +194,9 @@ export default function CoachDashboard({ profile, user }: CoachDashboardProps) {
                  onChange={(e) => setActiveReport(studentReports.find(r => r.id === e.target.value) || null)}
                >
                  {studentReports.map(r => (
-                   <option key={r.id} value={r.id}>{r.weekRange}</option>
+                   <option key={r.id} value={r.id}>
+                     {r.weekRange.includes('飲食體重紀錄') ? r.weekRange : `${r.weekRange} 飲食體重紀錄`}
+                   </option>
                  ))}
                </select>
              </div>
@@ -289,7 +291,11 @@ export default function CoachDashboard({ profile, user }: CoachDashboardProps) {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                     <Calendar className="w-3 h-3" /> 最新上傳週次
                   </p>
-                  <p className="text-sm font-bold text-slate-900 line-clamp-1">{student.latestReport?.weekRange || '尚未上傳'}</p>
+                  <p className="text-sm font-bold text-slate-900 line-clamp-1">
+                    {student.latestReport?.weekRange 
+                      ? (student.latestReport.weekRange.includes('飲食體重紀錄') ? student.latestReport.weekRange : `${student.latestReport.weekRange} 飲食體重紀錄`) 
+                      : '尚未上傳'}
+                  </p>
                 </div>
                 
                 <button 

@@ -156,12 +156,41 @@ export default function StudentDashboard({ profile, user }: StudentDashboardProp
           setUploadProgress(60);
           console.log("File read success, size:", content.length);
           
-          // Basic week range extraction
-          const weekRangeMatch = content.match(/class="range">([^<]+)/);
-          const weekRange = weekRangeMatch ? weekRangeMatch[1] : '未知週次';
+           // Robust week range extraction with multiple fallbacks
+           let weekRange = '未知週次';
+           
+           // Fallback 1: Try legacy class="range" pattern
+           const legacyMatch = content.match(/class="range">([^<]+)/);
+           if (legacyMatch) {
+             weekRange = legacyMatch[1].trim();
+           } else {
+             // Fallback 2: Try to extract from <title> e.g. <title>... (2026-09-11 ～ 2026-09-17)</title>
+             const titleMatch = content.match(/<title>[^<]*\(([^)]+)\)/i);
+             if (titleMatch) {
+               weekRange = titleMatch[1].trim();
+             } else {
+               // Fallback 3: Try to extract from MIN_DATE and MAX_DATE JS variables
+               const minDateMatch = content.match(/const\s+MIN_DATE\s*=\s*["']([^"']+)["']/);
+               const maxDateMatch = content.match(/const\s+MAX_DATE\s*=\s*["']([^"']+)["']/);
+               if (minDateMatch && maxDateMatch) {
+                 weekRange = `${minDateMatch[1]} ～ ${maxDateMatch[1]}`;
+               } else {
+                 // Fallback 4: Try to find any ISO dates separated by common range indicators (至, ~, -, ～)
+                 const generalDateMatch = content.match(/(\d{4}-\d{2}-\d{2})\s*(?:～|至|-|~)\s*(\d{4}-\d{2}-\d{2})/);
+                 if (generalDateMatch) {
+                   weekRange = `${generalDateMatch[1]} ～ ${generalDateMatch[2]}`;
+                 }
+               }
+             }
+           }
+
+           // Append report description suffix
+           if (weekRange !== '未知週次' && !weekRange.includes('飲食體重紀錄')) {
+             weekRange = `${weekRange} 飲食體重紀錄`;
+           }
 
           setUploadProgress(75);
-          console.log("Extracting week range:", weekRange);
+          console.log("Extracted week range:", weekRange);
 
           const docRef = await addDoc(collection(db, 'reports'), {
             studentId: user.uid,
@@ -220,7 +249,9 @@ export default function StudentDashboard({ profile, user }: StudentDashboardProp
             <ChevronRight className="w-4 h-4 rotate-180" /> 返回儀表板
           </button>
           <div className="text-left sm:text-right px-1">
-            <h2 className="text-lg font-black text-slate-900 leading-tight">週報預覽：{viewingReport.weekRange}</h2>
+            <h2 className="text-lg font-black text-slate-900 leading-tight">
+              週報預覽：{viewingReport.weekRange.includes('飲食體重紀錄') ? viewingReport.weekRange : `${viewingReport.weekRange} 飲食體重紀錄`}
+            </h2>
           </div>
         </div>
         <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100">
@@ -344,7 +375,9 @@ export default function StudentDashboard({ profile, user }: StudentDashboardProp
                     <FileText className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black text-slate-900 break-words text-base sm:text-lg leading-tight">{report.weekRange}</p>
+                    <p className="font-black text-slate-900 break-words text-base sm:text-lg leading-tight">
+                      {report.weekRange.includes('飲食體重紀錄') ? report.weekRange : `${report.weekRange} 飲食體重紀錄`}
+                    </p>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
