@@ -1,0 +1,26 @@
+{
+  "collections": [
+    {
+      "path": "users",
+      "description": "Store user profiles and roles",
+      "fields": [
+        { "name": "email", "type": "string" },
+        { "name": "role", "type": "string" },
+        { "name": "name", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "path": "reports",
+      "description": "Store uploaded HTML reports and extracted metrics",
+      "fields": [
+        { "name": "studentId", "type": "string" },
+        { "name": "studentName", "type": "string" },
+        { "name": "weekRange", "type": "string" },
+        { "name": "htmlContent", "type": "string" },
+        { "name": "metrics", "type": "map" },
+        { "name": "uploadDate", "type": "timestamp" }
+      ]
+    }
+  ]
+}

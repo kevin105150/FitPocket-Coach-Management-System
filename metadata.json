@@ -1,0 +1,6 @@
+{
+  "name": "FitPocket 教練管理系統",
+  "description": "提供學生上傳週報、教練管理與學員進度追蹤的整合系統",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
